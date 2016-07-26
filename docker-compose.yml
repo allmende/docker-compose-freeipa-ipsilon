@@ -1,0 +1,31 @@
+version: '2'
+
+services:
+  freeipa-server:
+    image: adelton/freeipa-server:fedora-24
+    hostname: ipa.allmende.io
+    volumes:
+      - ./data:/data:Z
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    env_file:
+      - ./frontend_ipa.env
+      - ./backend_ipa.env
+    networks:
+      - frontend
+
+  ipsilon:
+    build: ./ipsilon/
+    hostname: ipsilon.allmende.io
+    env_file:
+      - ./frontend_ipsilon.env
+      - ./backend_ipa.env
+    links:
+      - freeipa-server:ipa
+    networks:
+      - frontend
+
+networks:
+  frontend:
+    external:
+      name: nginx_default
+
